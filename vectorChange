@@ -1,0 +1,157 @@
+#include<iostream>
+#include<vector>
+#include<conio.h>
+#include <limits>
+#include<cctype>
+
+struct Number {
+public:
+	const bool operator()(std::string number)const {
+		for (int i = 0; i < number.size(); i++) 
+			if(!isdigit(number[i])) return false;	
+		return true;
+	}
+};
+
+class Vector {
+private:
+	static std::vector<int>_data;
+public:
+	const void operator+(int data) const {
+		_data.push_back(data);
+	}
+
+	const void operator-(int index) const {
+		auto it = _data.begin();
+
+		if (index < _data.size()) 
+			_data.erase(it += index);
+		
+		else if (index >= _data.size() && _data.size() != 0)
+			_data.pop_back();
+	}
+
+	const int operator*(int index) const {
+		if(index < _data.size())
+			return _data.at(index);
+	}
+
+	static void ShowArray() {
+		if (_data.size() == 0)
+			std::cout << "Array is empty";
+
+		for (auto it = _data.begin(); it != _data.end(); it++) {
+
+			if (it == _data.end() - 1) std::cout << "{" << *it << "}";		
+
+			else std::cout << "{" << *it << "}, ";
+			
+		}
+	}
+
+	static void ChangeValue(int value, int index) {
+		_data.at(index) = value;
+	}
+
+	static int GetSizeOfArray() { return _data.size(); }
+};
+
+std::vector<int>Vector::_data;
+
+int main() {
+	std::vector<std::string>instructions = {
+		"'+' to add the element",
+		"'-' to delete element by index",
+		"'*' to get element by index"
+	};
+
+	std::vector<std::string>interactions{
+		"'0' - Change its value",
+		"'1' - Delete"
+	};
+
+	Vector x;
+	Number num;
+	int index = 0;
+	int newValue = 0;
+	int absolutMax;
+	int interaction = 0;
+	std::string data;
+
+	auto beforeCompilation{ []()->int {
+		return std::numeric_limits<int>::max();
+	} };
+
+	absolutMax = beforeCompilation();
+
+	auto interact{ [&x, absolutMax, &index, &num, &data, interactions, &interaction, &newValue](char input)->void {
+		std::cout << "\n\n";
+	
+	switch (input) {
+	case '+':
+		std::cout << "Enter data: ";
+		std::cin >> data;
+		
+		if(num(data)) x + std::atoi(data.c_str());
+
+		else {
+			std::cout << "\nERROR(Your input is not valid)";
+			std::cout << "\n\nCLICK TO CONTINUE: ";
+			_getch();
+		}
+		break;
+
+	case '-':
+		std::cout << "Enter index of element you want to delete: ";
+		std::cin >> index;
+		x - index;
+		break;
+
+	case '*':
+		std::cout << "Enter index of element you want to see: ";
+		std::cin >> index;
+
+		if (index < Vector::GetSizeOfArray()) {
+			std::cout << "\nWhat do you want to do with this value?" << "\n\n";
+
+			for (auto it = interactions.begin(); it != interactions.end(); it++)
+				std::cout << *it << '\n';
+
+			std::cout << "\nYour input: ";
+			std::cin >> interaction;
+
+			switch (interaction)
+			{
+			case 0:
+				std::cout << "\nEnter new value: ";
+				std::cin >> newValue;
+				Vector::ChangeValue(newValue, index);
+				break;
+			case 1:
+				x - index;
+				break;
+			default:
+				break;
+			}
+		}
+		else {
+			std::cout << "\nERROR(Element by index " << index << " is not found)";
+			std::cout << "\n\nCLICK TO CONTINUE: ";
+			_getch();
+		}
+		break;
+	}
+	} };
+
+	while (true) {		
+		system("cls");
+		for (auto it = instructions.begin(); it != instructions.end(); it++)
+			std::cout << *it << '\n';
+
+		std::cout << "\nArray: ";
+		Vector::ShowArray();
+		std::cout << "\n\nEnter your input: ";
+		interact(_getch());
+	}
+	return 0;
+}
